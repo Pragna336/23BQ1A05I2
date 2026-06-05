@@ -414,3 +414,127 @@ ON notifications (notificationType, createdAt);
 ```
 
 ---
+
+# Stage 4
+
+## 1. Problem Statement
+
+Notifications are being fetched on every page load for every student.  
+This is causing high database load, slow response times, and poor user experience.
+
+---
+
+## 2. Problems Identified
+
+- Excessive database read operations
+- Repeated fetching of same data
+- High latency during page load
+- DB overload under high concurrent users
+- Inefficient use of resources
+
+---
+
+## 3. Suggested Solutions
+
+### 3.1 Caching Layer (Recommended Solution)
+
+Use Redis or in-memory caching to store frequently accessed notifications.
+
+#### Approach:
+- Store user notifications in cache after first DB fetch
+- Serve subsequent requests from cache
+- Update cache when new notification is created
+
+#### Benefits:
+- Very fast response time (O(1) access)
+- Reduces database load significantly
+- Improves scalability
+
+#### Trade-offs:
+- Cache invalidation complexity
+- Possible stale data if not updated properly
+- Additional infrastructure (Redis setup)
+
+---
+
+### 3.2 Pagination
+
+Fetch notifications in chunks instead of loading all at once.
+
+#### Example:
+- Limit 20–50 notifications per request
+- Use page and limit parameters
+
+#### Benefits:
+- Reduces memory usage
+- Faster response time
+- Scales well with large datasets
+
+#### Trade-offs:
+- More API calls needed for full history
+- Slight complexity in frontend handling
+
+---
+
+### 3.3 Lazy Loading
+
+Load notifications only when user scrolls or opens notification panel.
+
+#### Benefits:
+- Reduces initial page load time
+- Improves perceived performance
+
+#### Trade-offs:
+- Slight delay in accessing older notifications
+- Requires frontend implementation complexity
+
+---
+
+### 3.4 WebSocket Based Updates
+
+Instead of fetching repeatedly:
+- Maintain persistent connection
+- Push notifications in real time
+
+#### Benefits:
+- Eliminates repeated polling
+- Instant delivery of updates
+- Reduces API calls
+
+#### Trade-offs:
+- Complex implementation
+- Requires connection management
+- Not ideal for unreliable networks
+
+---
+
+### 3.5 Database Optimization
+
+- Proper indexing (userId, createdAt)
+- Query optimization
+- Avoid fetching unnecessary fields
+
+#### Benefits:
+- Improves query performance
+- Reduces DB execution time
+
+#### Trade-offs:
+- Limited improvement compared to caching
+- Does not solve repeated request issue fully
+
+---
+
+## 4. Recommended Combined Strategy
+
+Best production approach:
+
+1. Use Redis caching for frequent reads
+2. Use pagination for large datasets
+3. Use WebSockets for real-time updates
+4. Optimize DB with proper indexing
+
+---
+
+## 5. Conclusion
+
+The best scalable solution is a hybrid approach combining caching, pagination, and real-time WebSocket updates to reduce database load and improve user experience.

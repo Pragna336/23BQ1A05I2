@@ -1,4 +1,4 @@
-# Stage 1: Notification System Design (REST API Contract + Real-time Design)
+# Stage 1:
 
 ---
 

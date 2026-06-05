@@ -314,3 +314,103 @@ db.notifications.createIndex({ createdAt: -1 })
 - Use caching (Redis) for frequently accessed data
 
 ---
+
+# Stage 3
+
+## 1. Given Query Analysis
+
+### Original Query:
+```sql
+select * 
+from notifications 
+where studentId = 1042 
+and isRead = false 
+order by createdAt desc;
+```
+
+---
+
+## 2. Is the query accurate?
+
+Yes, the query is logically correct.  
+It fetches unread notifications for a specific student and sorts them by latest first.
+
+---
+
+## 3. Why is the query slow?
+
+The query is slow due to the following reasons:
+
+- No proper indexing on `studentId`, `isRead`, and `createdAt`
+- Full table scan is performed
+- Large dataset (millions of records)
+- Sorting operation on unindexed column
+
+---
+
+## 4. Improved Solution
+
+### Recommended Index:
+```sql
+CREATE INDEX idx_student_unread_created 
+ON notifications (studentId, isRead, createdAt DESC);
+```
+
+---
+
+### Optimized Query:
+```sql
+select *
+from notifications
+where studentId = 1042
+and isRead = false
+order by createdAt desc;
+```
+
+---
+
+## 5. Computation Cost
+
+### Before Index:
+- Time Complexity: O(n)
+- Full table scan required
+- Expensive sorting operation
+
+### After Index:
+- Time Complexity: O(log n)
+- Faster lookup using index tree
+- Reduced sorting cost
+
+---
+
+## 6. Is indexing every column effective?
+
+No, it is not effective.
+
+Reasons:
+- Increases storage cost
+- Slows down insert, update, and delete operations
+- Maintenance overhead for database
+- Only useful indexes should be created based on query patterns
+
+---
+
+## 7. Query: Placement Notifications in Last 7 Days
+
+```sql
+SELECT *
+FROM notifications
+WHERE notificationType = 'Placement'
+AND createdAt >= NOW() - INTERVAL 7 DAY;
+```
+
+---
+
+## 8. Recommended Index
+
+```sql
+CREATE INDEX idx_type_created 
+ON notifications (notificationType, createdAt);
+```
+
+---

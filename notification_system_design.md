@@ -32,3 +32,4 @@ The notification platform should support the following core actions:
   "isRead": false,
   "createdAt": "timestamp"
 }
+```

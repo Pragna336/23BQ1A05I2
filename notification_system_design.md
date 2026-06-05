@@ -196,3 +196,121 @@ Frontend → REST API → Backend → Database
         Real-time Notification Push
 
 ---
+
+# Stage 2
+
+## 1. Database Choice
+
+We choose **MongoDB (NoSQL Database)** for the Notification System.
+
+### Why MongoDB?
+- Stores data in JSON-like format (perfect for notifications)
+- Easy scalability for large number of users
+- Fast read and write operations
+- Flexible schema (easy to modify notification structure)
+- Suitable for real-time applications
+
+---
+
+## 2. Database Name
+
+```
+notificationDB
+```
+
+---
+
+## 3. Collection Design
+
+### Collection: notifications
+
+```json
+{
+  "_id": "ObjectId",
+  "notificationId": "n1",
+  "userId": "12345",
+  "title": "New Message",
+  "message": "You have received a new message",
+  "type": "info",
+  "isRead": false,
+  "createdAt": "2026-06-05T10:00:00Z"
+}
+```
+
+---
+
+## 4. MongoDB Operations
+
+---
+
+### 4.1 Insert Notification
+
+```js
+db.notifications.insertOne({
+  notificationId: "n1",
+  userId: "12345",
+  title: "New Message",
+  message: "You have received a new message",
+  type: "info",
+  isRead: false,
+  createdAt: new Date()
+})
+```
+
+---
+
+### 4.2 Get User Notifications
+
+```js
+db.notifications.find({ userId: "12345" }).sort({ createdAt: -1 })
+```
+
+---
+
+### 4.3 Get Unread Notifications
+
+```js
+db.notifications.find({
+  userId: "12345",
+  isRead: false
+})
+```
+
+---
+
+### 4.4 Mark Notification as Read
+
+```js
+db.notifications.updateOne(
+  { notificationId: "n1" },
+  { $set: { isRead: true } }
+)
+```
+
+---
+
+### 4.5 Delete Notification
+
+```js
+db.notifications.deleteOne({ notificationId: "n1" })
+```
+
+---
+
+## 5. Indexing (Performance Improvement)
+
+```js
+db.notifications.createIndex({ userId: 1 })
+db.notifications.createIndex({ createdAt: -1 })
+```
+
+---
+
+## 6. Scaling Considerations
+
+- Use indexing for fast queries
+- Use pagination for large datasets
+- Archive old notifications
+- Use caching (Redis) for frequently accessed data
+
+---
